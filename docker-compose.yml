@@ -1,28 +1,22 @@
 version: "3.9"
 
 services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    env_file:
+      - .env
+    volumes:
+      - ./app:/app
+
   db:
     image: postgres:13
-    container_name: filmes-hexagonal-db-1
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: moviedb
+      POSTGRES_DB: postgres
     ports:
       - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-
-  app:
-    build: .
-    container_name: filmes-hexagonal-app-1
-    environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/moviedb
-      OMDB_API_KEY: sua_chave_aqui
-    ports:
-      - "90:80"
-    depends_on:
-      - db
-
-volumes:
-  pgdata:
