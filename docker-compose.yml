@@ -1,39 +1,28 @@
-version: '3.3'
+version: "3.9"
+
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: movie-api-app
-    command: bash -c "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port
-      8000"
-    environment:
-      DB_HOST: db
-      DB_PORT: '5432'
-      DB_NAME: filmesdb
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-    ports:
-    - 8000:8000
-    depends_on:
-    - db
-    networks:
-    - filme-network
   db:
     image: postgres:13
-    container_name: movie-db
+    container_name: filmes-hexagonal-db-1
     environment:
-      POSTGRES_DB: filmesdb
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: moviedb
     ports:
-    - 5432:5432
+      - "5432:5432"
     volumes:
-    - postgres_data:/var/lib/postgresql/data
-    networks:
-    - filme-network
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: filmes-hexagonal-app-1
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/moviedb
+      OMDB_API_KEY: sua_chave_aqui
+    ports:
+      - "90:80"
+    depends_on:
+      - db
+
 volumes:
-  postgres_data: {}
-networks:
-  filme-network:
-    external: true
+  pgdata:
